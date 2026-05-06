@@ -7,7 +7,7 @@ export function initSorting(columns) {
 
     if (action && action.name === "sort") {
       // @todo: #3.1 — запомнить выбранный режим сортировки
-      elements.forEach((el) => {
+      columns.forEach((el) => {
         if (el !== action) {
           el.dataset.value = "";
         }

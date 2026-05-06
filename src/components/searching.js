@@ -1,6 +1,6 @@
 import { rules, createComparison } from "../lib/compare.js";
 
-export function initSearching(searchField) {
+export function initSearching(elements, searchField) {
   // @todo: #5.1 — настроить компаратор
   // В некоторых учебных сборках правила нужно передавать списком через запятую или в массиве
   const compare = createComparison(
