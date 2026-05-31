@@ -1,17 +1,12 @@
 import { sortCollection, sortMap } from "../lib/sort.js";
 
 export function initSorting(columns) {
-  return (data, state, action) => {
+  return (query, state, action) => {
     let field = null;
     let order = null;
 
     if (action && action.name === "sort") {
       // @todo: #3.1 — запомнить выбранный режим сортировки
-      elements.forEach((el) => {
-        if (el !== action) {
-          el.dataset.value = "";
-        }
-      });
 
       // 2. Переключаем состояние нажатой кнопки по кругу через sortMap
       action.dataset.value = sortMap[action.dataset.value];
@@ -21,7 +16,6 @@ export function initSorting(columns) {
       order = action.dataset.value; // Берем новое направление (asc, desc или пусто)
 
       // @todo: #3.2 — сбросить сортировки остальных колонок
-      // @todo: #3.2 — сбросить состояние остальных кнопок
       columns.forEach((column) => {
         // Если поле этой кнопки не совпадает с полем нажатой кнопки
         if (column.dataset.field !== action.dataset.field) {
@@ -39,6 +33,8 @@ export function initSorting(columns) {
         }
       });
     }
-    return sortCollection(data, field, order);
+    const sort = field && order !== "none" ? `${field}:${order}` : null; // сохраним в переменную параметр сортировки в виде field:direction
+
+    return sort ? Object.assign({}, query, { sort }) : query; // по общему принципу, если есть сортировка, добавляем, если нет, то не трогаем query
   };
 }

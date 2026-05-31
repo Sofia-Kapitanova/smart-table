@@ -1,30 +1,24 @@
-import { createComparison, defaultRules } from "../lib/compare.js";
+//import { createComparison, defaultRules } from "../lib/compare.js";
 
 // @todo: #4.3 — настроить компаратор
 
-const compare = createComparison(defaultRules);
-
-export function initFiltering(elements, indexes) {
+export function initFiltering(elements) {
   // @todo: #4.1 — заполнить выпадающие списки опциями
 
-  Object.keys(indexes).forEach((elementName) => {
-    // Проверяем, существует ли такой select в шаблоне
-    if (elements[elementName]) {
+  const updateIndexes = (elements, indexes) => {
+    Object.keys(indexes).forEach((elementName) => {
       elements[elementName].append(
         ...Object.values(indexes[elementName]).map((name) => {
-          // Создаем новый элемент option
-          const option = document.createElement("option");
-          // Устанавливаем значение и текст
-          option.value = name;
-          option.textContent = name;
-          // Возвращаем готовую опцию для append
-          return option;
+          const el = document.createElement("option");
+          el.textContent = name;
+          el.value = name;
+          return el;
         }),
       );
-    }
-  });
+    });
+  };
 
-  return (data, state, action) => {
+  const applyFiltering = (query, state, action) => {
     // @todo: #4.2 — обработать очистку поля
     if (action && action.dataset.name === "clear") {
       // Ищем инпут в том же блоке, где кнопка
@@ -39,7 +33,27 @@ export function initFiltering(elements, indexes) {
       }
     }
 
-    // @todo: #4.5 — отфильтровать данные используя компаратор
-    return data.filter((row) => compare(row, state));
+    // @todo: #4.5 — отфильтровать данные, используя компаратор
+    const filter = {};
+    Object.keys(elements).forEach((key) => {
+      if (elements[key]) {
+        if (
+          ["INPUT", "SELECT"].includes(elements[key].tagName) &&
+          elements[key].value
+        ) {
+          // ищем поля ввода в фильтре с непустыми данными
+          filter[`filter[${elements[key].name}]`] = elements[key].value; // чтобы сформировать в query вложенный объект фильтра
+        }
+      }
+    });
+
+    return Object.keys(filter).length
+      ? Object.assign({}, query, filter)
+      : query; // если в фильтре что-то добавилось, применим к запросу
+  };
+
+  return {
+    updateIndexes,
+    applyFiltering,
   };
 }
